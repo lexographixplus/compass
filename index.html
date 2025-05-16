@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Compass Planner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="text-gray-800 bg-gray-100 font-sans antialiased">
+
+    <div id="homeScreen" class="min-h-screen flex flex-col items-center justify-center text-center p-4 sm:p-8 bg-gradient-to-br from-teal-50 via-blue-50 to-purple-50">
+        <div class="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-lg">
+            <i class="fas fa-compass text-5xl text-teal-500 mb-4"></i>
+            <h1 class="text-3xl sm:text-4xl font-bold mb-3 text-gray-900">Community Compass Planner</h1>
+            <p class="text-base sm:text-lg text-gray-600 mb-6">Plan and reflect on your community development work using the Innovator's Compass framework.</p>
+            <form id="welcomeForm" class="space-y-4 mb-6 max-w-md mx-auto text-left">
+                <div> <label for="userName" class="block text-sm font-medium text-gray-700 mb-1">Your Name</label> <input type="text" id="userName" name="userName" required placeholder="Enter your full name" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500 text-sm sm:text-base"> </div>
+                <div> <label for="userEmail" class="block text-sm font-medium text-gray-700 mb-1">Your Email</label> <input type="email" id="userEmail" name="userEmail" required placeholder="Enter your email address" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500 text-sm sm:text-base"> </div>
+                <div> <label for="userCommunity" class="block text-sm font-medium text-gray-700 mb-1">Community Name</label> <input type="text" id="userCommunity" name="userCommunity" required placeholder="Enter community name" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500 text-sm sm:text-base"> </div>
+                <div> <label for="userCountry" class="block text-sm font-medium text-gray-700 mb-1">Country</label> <input type="text" id="userCountry" name="userCountry" required placeholder="Enter your country" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500 text-sm sm:text-base"> </div>
+                <button type="submit" id="startButton" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-200 ease-in-out flex items-center justify-center mx-auto mt-4 disabled:opacity-50 disabled:cursor-not-allowed"> <i class="fas fa-arrow-right mr-2"></i> <span id="startButtonText">Start Planning Session</span> </button>
+                <p id="welcomeFormError" class="text-sm text-red-600 text-center mt-2 hidden"></p>
+            </form>
+             <p class="text-xs text-gray-500 mt-4">Your progress will be saved locally in this browser.</p>
+        </div>
+    </div>
+
+    <div id="appInterface" class="hidden flex flex-col min-h-screen bg-gray-50">
+
+        <nav class="bg-white shadow-sm sticky top-0 z-40">
+             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16">
+                    <div class="flex items-center">
+                        <button id="hamburgerButton" class="md:hidden mr-3 text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-teal-500"> <span class="sr-only">Open menu</span> <i class="fas fa-bars block h-6 w-6"></i> </button>
+                        <div class="flex items-center"> <i class="fas fa-compass text-2xl text-teal-500 mr-2"></i> <a href="#" id="nav-home-title" class="text-lg sm:text-xl font-semibold text-gray-900 hover:text-teal-700">Community Compass</a> </div>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <span id="progressIndicator" class="text-xs sm:text-sm font-medium text-gray-600 text-right whitespace-nowrap">0/5 sections complete</span>
+                        <div class="w-24 h-2.5 bg-gray-200 rounded-full overflow-hidden"> <div id="progressBar" class="h-full bg-teal-500 rounded-full transition-width duration-500 ease-in-out" style="width: 0%"></div> </div>
+                         <button id="nav-help-icon" class="text-gray-500 hover:text-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500 rounded-full p-1" aria-label="Help"> <i class="fas fa-question-circle text-xl"></i> </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="flex flex-1 overflow-hidden">
+            <aside id="sidebar" class="fixed inset-y-0 left-0 z-30 w-64 bg-white border-r border-gray-200 p-5 overflow-y-auto transform -translate-x-full transition-transform duration-300 ease-in-out md:relative md:translate-x-0 md:block md:flex-shrink-0 shadow-lg md:shadow-none">
+                 <div class="flex justify-between items-center md:hidden mb-4"> <h2 class="text-lg font-semibold text-gray-800">Menu</h2> <button id="closeMobileMenuButton" class="text-gray-500 hover:text-gray-800 text-2xl"><i class="fas fa-times"></i></button> </div>
+                 <nav class="space-y-1">
+                    <a href="#" id="nav-home" class="nav-link group flex items-center px-3 py-2.5 rounded-md text-sm font-medium text-gray-700 hover:bg-teal-50 hover:text-teal-700"> <i class="fas fa-th-large w-6 mr-3 text-gray-400 group-hover:text-teal-500"></i> Dashboard </a>
+                    <span class="block pt-4 pb-2 px-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Compass Sections</span>
+                    <a href="#" data-section="people" class="sidebar-link nav-link group flex items-center px-3 py-2.5 rounded-md text-sm font-medium text-gray-700 hover:bg-teal-50 hover:text-teal-700"> <i class="fas fa-users w-6 mr-3 text-gray-400 group-hover:text-teal-500"></i> People </a>
+                    <a href="#" data-section="observations" class="sidebar-link nav-link group flex items-center px-3 py-2.5 rounded-md text-sm font-medium text-gray-700 hover:bg-teal-50 hover:text-teal-700"> <i class="fas fa-eye w-6 mr-3 text-gray-400 group-hover:text-teal-500"></i> Observations </a>
+                    <a href="#" data-section="principles" class="sidebar-link nav-link group flex items-center px-3 py-2.5 rounded-md text-sm font-medium text-gray-700 hover:bg-teal-50 hover:text-teal-700"> <i class="fas fa-compass w-6 mr-3 text-gray-400 group-hover:text-teal-500"></i> Principles </a>
+                    <a href="#" data-section="ideas" class="sidebar-link nav-link group flex items-center px-3 py-2.5 rounded-md text-sm font-medium text-gray-700 hover:bg-teal-50 hover:text-teal-700"> <i class="fas fa-lightbulb w-6 mr-3 text-gray-400 group-hover:text-teal-500"></i> Ideas </a>
+                    <a href="#" data-section="experiments" class="sidebar-link nav-link group flex items-center px-3 py-2.5 rounded-md text-sm font-medium text-gray-700 hover:bg-teal-50 hover:text-teal-700"> <i class="fas fa-flask w-6 mr-3 text-gray-400 group-hover:text-teal-500"></i> Experiments </a>
+                    <span class="block pt-4 pb-2 px-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</span>
+                    <a href="#" id="nav-summary" class="nav-link group flex items-center px-3 py-2.5 rounded-md text-sm font-medium text-gray-700 hover:bg-teal-50 hover:text-teal-700"> <i class="fas fa-file-alt w-6 mr-3 text-gray-400 group-hover:text-teal-500"></i> View Summary </a>
+                    <a href="#" id="nav-help" class="nav-link group flex items-center px-3 py-2.5 rounded-md text-sm font-medium text-gray-700 hover:bg-teal-50 hover:text-teal-700"> <i class="fas fa-question-circle w-6 mr-3 text-gray-400 group-hover:text-teal-500"></i> Help / How to Use </a>
+                     <div class="pt-6"> <button id="startOverButton" class="w-full group flex items-center px-3 py-2.5 rounded-md text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-800"> <i class="fas fa-trash-alt w-6 mr-3 text-red-400 group-hover:text-red-600"></i> Reset All Data </button> </div>
+                 </nav>
+            </aside>
+
+            <main id="mainContentArea" class="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 relative bg-gray-100">
+                <div id="compassView">
+                     <h2 class="text-2xl font-semibold mb-6 text-gray-800">Compass Dashboard</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                        <div data-section="people" class="sidebar-link quick-access-card bg-white p-5 rounded-lg shadow hover:shadow-md transition-shadow cursor-pointer border border-transparent hover:border-teal-300"> <div class="flex items-center mb-2"> <i class="fas fa-users text-2xl text-teal-500 mr-3"></i> <h3 class="text-lg font-semibold text-gray-800">People</h3> </div> <p class="text-sm text-gray-600">Who is involved or affected?</p> </div>
+                         <div data-section="observations" class="sidebar-link quick-access-card bg-white p-5 rounded-lg shadow hover:shadow-md transition-shadow cursor-pointer border border-transparent hover:border-teal-300"> <div class="flex items-center mb-2"> <i class="fas fa-eye text-2xl text-teal-500 mr-3"></i> <h3 class="text-lg font-semibold text-gray-800">Observations</h3> </div> <p class="text-sm text-gray-600">What's happening? Why?</p> </div>
+                         <div data-section="principles" class="sidebar-link quick-access-card bg-white p-5 rounded-lg shadow hover:shadow-md transition-shadow cursor-pointer border border-transparent hover:border-teal-300"> <div class="flex items-center mb-2"> <i class="fas fa-compass text-2xl text-teal-500 mr-3"></i> <h3 class="text-lg font-semibold text-gray-800">Principles</h3> </div> <p class="text-sm text-gray-600">What matters most?</p> </div>
+                         <div data-section="ideas" class="sidebar-link quick-access-card bg-white p-5 rounded-lg shadow hover:shadow-md transition-shadow cursor-pointer border border-transparent hover:border-teal-300"> <div class="flex items-center mb-2"> <i class="fas fa-lightbulb text-2xl text-teal-500 mr-3"></i> <h3 class="text-lg font-semibold text-gray-800">Ideas</h3> </div> <p class="text-sm text-gray-600">What ways forward?</p> </div>
+                         <div data-section="experiments" class="sidebar-link quick-access-card bg-white p-5 rounded-lg shadow hover:shadow-md transition-shadow cursor-pointer border border-transparent hover:border-teal-300"> <div class="flex items-center mb-2"> <i class="fas fa-flask text-2xl text-teal-500 mr-3"></i> <h3 class="text-lg font-semibold text-gray-800">Experiments</h3> </div> <p class="text-sm text-gray-600">What's a small step to try?</p> </div>
+                         <div id="nav-summary-card" class="quick-access-card bg-white p-5 rounded-lg shadow hover:shadow-md transition-shadow cursor-pointer border border-transparent hover:border-blue-300"> <div class="flex items-center mb-2"> <i class="fas fa-file-alt text-2xl text-blue-500 mr-3"></i> <h3 class="text-lg font-semibold text-gray-800">View Summary</h3> </div> <p class="text-sm text-gray-600">See all entries and finalize.</p> </div>
+                    </div>
+                </div>
+
+                <div id="summaryView" class="hidden">
+                    <div class="mb-4"> <button id="backToHomeFromSummary" class="text-teal-600 hover:text-teal-800 text-sm font-medium flex items-center"><i class="fas fa-arrow-left mr-2"></i> Back to Dashboard </button> </div>
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                        <h2 class="text-2xl sm:text-3xl font-bold text-gray-900">Compass Entry Summary</h2>
+                        <div class="flex space-x-3 w-full sm:w-auto">
+                             <button id="finalizeButton" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow transition duration-200 ease-in-out text-sm sm:text-base flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed">
+                                 <span id="finalizeButtonText"> <i class="fas fa-check-circle mr-2"></i> Finalize & Download </span>
+                                 <i id="finalizeButtonSpinner" class="fas fa-spinner fa-spin ml-2 hidden"></i>
+                             </button>
+                        </div>
+                    </div>
+                     <p id="submitStatusMessage" class="text-sm text-center mb-4 hidden"></p>
+                    <div id="summaryContent" class="space-y-5 bg-white p-5 sm:p-6 rounded-lg shadow-md">
+                        <p class="text-gray-500 text-sm sm:text-base">Loading summary...</p>
+                    </div>
+                </div>
+
+                <div id="helpView" class="hidden max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-md">
+                     <div class="mb-4"> <button id="backToHomeFromHelp" class="text-teal-600 hover:text-teal-800 text-sm font-medium flex items-center"><i class="fas fa-arrow-left mr-2"></i> Back to Dashboard </button> </div>
+                     <h2 class="text-2xl sm:text-3xl font-bold mb-6 text-gray-900">How to Use the Community Compass</h2>
+                     <div class="prose prose-sm sm:prose max-w-none"> <h3>About the Innovator's Compass</h3> <p>...</p> <ul>...</ul> <p>...</p> <h3>Getting Started</h3> <ol> <li>Enter your details and click "Start Planning Session".</li> <li>Use the sidebar or dashboard cards to select a section.</li> <li>Add insights in the panel that appears. Click "Save & Close".</li> <li>Repeat for other sections. Progress is shown at the top.</li> <li>Go to "View Summary" to see all entries.</li> <li>From the Summary, click "Edit" to modify sections.</li> <li>When finished, click "Finalize & Download" on the Summary page to save your entry to the central database and download a PDF copy.</li> </ol> <h3>Tips</h3> <ul>...</ul> </div>
+                </div>
+            </main>
+
+            <div id="slidingPanel" class="fixed top-0 right-0 w-full max-w-md sm:max-w-lg md:w-1/2 lg:w-2/5 xl:w-1/3 h-full bg-white shadow-xl border-l border-gray-200 overflow-y-auto z-50 transform translate-x-full transition-transform duration-300 ease-in-out p-5 sm:p-6 flex flex-col">
+                 <div class="flex-shrink-0"> <div class="flex justify-between items-center mb-4"> <div class="flex items-center"> <span id="panelIcon" class="text-3xl text-teal-500 mr-3"><i class="fas fa-question-circle"></i></span> <h3 id="panelTitle" class="text-xl sm:text-2xl font-semibold text-gray-900">Section Title</h3> </div> <button id="closePanelButton" class="text-gray-400 hover:text-gray-700 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-teal-500"> <span class="sr-only">Close panel</span> <i class="fas fa-times text-xl"></i> </button> </div> <p id="panelQuestion" class="text-sm sm:text-base text-gray-600 mb-4 pb-4 border-b border-gray-200">Guiding question...</p> <div class="mb-4"> <button id="collapsibleExamplesBtn" class="flex justify-between items-center w-full text-left text-sm font-medium text-gray-700 hover:text-gray-900 mb-1 focus:outline-none"> <span><i class="fas fa-info-circle mr-2 text-teal-600"></i> Examples</span> <i class="fas fa-chevron-down transition-transform duration-200" id="examplesChevron"></i> </button> <div id="examplesContainer" class="hidden mt-2 pl-5 border-l-2 border-teal-100"> <ul id="panelExamples" class="list-disc list-inside text-xs sm:text-sm text-gray-500 space-y-1"></ul> </div> </div> </div> <div class="flex-grow mb-4"> <textarea id="panelTextArea" class="w-full h-full p-3 border border-gray-300 rounded-md focus:ring-teal-500 focus:border-teal-500 text-sm sm:text-base resize-none" placeholder="Type your community insights here..."></textarea> </div> <div class="flex-shrink-0"> <div id="characterCount" class="text-xs text-gray-500 text-right mb-4">0 characters</div> <div class="flex flex-col sm:flex-row justify-between items-center gap-3 border-t border-gray-200 pt-4"> <button id="resetButton" class="w-full sm:w-auto order-2 sm:order-1 text-sm text-red-600 hover:text-red-800 flex items-center justify-center py-2 px-3 hover:bg-red-50 rounded-md"> <i class="fas fa-trash-alt mr-1"></i> Clear Entry </button> <button id="saveButton" class="w-full sm:w-auto order-1 sm:order-2 bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 px-5 rounded-lg shadow transition duration-200 ease-in-out text-sm sm:text-base flex items-center justify-center"> <i class="fas fa-save mr-2"></i> Save & Close </button> </div> </div>
+            </div>
+
+        </div> <div id="sidebarOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-20 hidden md:hidden"></div>
+        <div id="panelOverlay" class="fixed inset-0 bg-black bg-opacity-60 z-40 hidden backdrop-blur-sm"></div>
+
+        <div id="toastNotification" class="fixed bottom-5 right-5 sm:bottom-8 sm:right-8 bg-gray-800 text-white py-2.5 px-5 rounded-lg shadow-lg transform translate-y-full opacity-0 transition-all duration-300 ease-out flex items-center z-[100]">
+             <i id="toastIcon" class="fas fa-check-circle mr-3 text-xl"></i> <span id="toastMessage" class="text-sm font-medium">Notification message.</span>
+        </div>
+
+    </div> <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="script.js" defer></script>
+
+</body>
+</html>

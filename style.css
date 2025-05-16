@@ -1,0 +1,104 @@
+/* style.css */
+
+/* Base body styles */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f9fafb; /* Tailwind gray-50 slightly darker */
+    color: #1f2937; /* Tailwind gray-800 */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Welcome Screen Enhancements */
+#homeScreen {
+    /* Gradient defined in HTML */
+}
+#homeScreen > div { /* Style the inner container */
+    background-color: rgba(255, 255, 255, 0.95); /* Slightly transparent white */
+    backdrop-filter: blur(5px); /* Optional blur effect */
+}
+
+/* Sidebar Styling */
+#sidebar {
+    /* Tailwind handles transform and transition */
+    /* Add subtle border */
+    /* border-right: 1px solid #e5e7eb; */ /* Handled by Tailwind */
+}
+.nav-link.bg-teal-100 {
+    /* Tailwind handles active state */
+    font-weight: 600; /* Make active link bold */
+}
+
+/* Dashboard Cards */
+.quick-access-card {
+    /* Tailwind handles base styles */
+}
+
+/* Sliding Panel - Full Height */
+#slidingPanel {
+    /* Tailwind handles transform and transition */
+    box-shadow: -8px 0 25px rgba(0, 0, 0, 0.1); /* Softer shadow */
+    /* Ensure textarea can grow */
+    display: flex;
+    flex-direction: column;
+}
+#slidingPanel textarea {
+    flex-grow: 1; /* Allow textarea to fill space */
+    min-height: 200px; /* Ensure minimum height */
+}
+
+
+/* Ensure text area has reasonable default size and styling */
+textarea {
+    /* min-height: 150px; */ /* Controlled by panel layout now */
+    resize: vertical;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+textarea:focus {
+    outline: none;
+    border-color: #0d9488; /* Teal-600 */
+    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.2);
+}
+
+/* Toast notification styling */
+#toastNotification {
+     z-index: 100;
+     /* Tailwind handles transform/opacity */
+}
+#toastIcon {
+    /* Size set via text-xl in HTML */
+}
+
+/* Progress bar animation */
+#progressBar {
+    transition: width 0.5s ease-in-out;
+}
+
+/* Style for collapsible examples */
+#examplesChevron {
+    transition: transform 0.2s ease-in-out;
+}
+.rotate-180 {
+    transform: rotate(180deg);
+}
+
+/* Improve button focus states */
+button:focus-visible {
+    outline: 2px solid #0d9488; /* Teal-600 */
+    outline-offset: 2px;
+}
+input:focus-visible, textarea:focus-visible, select:focus-visible {
+     border-color: #0d9488; /* teal-600 */
+     box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.3); /* teal ring */
+     outline: none;
+}
+
+/* Print Styles (Keep from previous version) */
+@media print {
+    #sidebar, #hamburgerButton, #closeMobileMenuButton, #slidingPanel, #appFooter, #toastNotification, nav, #startOverButton, #summaryExportPdfButton, .summary-edit-btn, #backToHomeFromSummary, #backToHomeFromHelp, #submitToSheetButton { display: none !important; }
+    body { font-size: 10pt; background-color: #ffffff; }
+    #mainContentArea, #summaryView, #summaryContent { overflow: visible !important; padding: 0 !important; margin: 0 !important; box-shadow: none !important; border: none !important; }
+    .summary-section { page-break-inside: avoid; border: none !important; padding-bottom: 10px !important; margin-bottom: 10px !important; }
+    h2, h3 { page-break-after: avoid; }
+    p, li { color: #000000 !important; }
+}

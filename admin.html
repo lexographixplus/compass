@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Compass Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        /* Table styling */
+        th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid #e5e7eb; vertical-align: top; }
+        th { background-color: #f9fafb; font-weight: 600; position: sticky; top: 0; z-index: 1; white-space: nowrap; }
+        tbody tr:nth-child(even) { background-color: #f9fafb; }
+        tbody tr:hover { background-color: #f0f9ff; cursor: pointer; }
+        .table-container { max-height: 60vh; overflow-y: auto; overflow-x: auto; border: 1px solid #e5e7eb; border-radius: 0.375rem; }
+        /* Loader */
+        .loader { border: 4px solid #f3f4f6; border-top: 4px solid #10b981; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 2rem auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        /* Scrollbar */
+         .table-container::-webkit-scrollbar { width: 8px; height: 8px; }
+         .table-container::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px;}
+         .table-container::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px;}
+         .table-container::-webkit-scrollbar-thumb:hover { background: #aaa; }
+        .table-container { scrollbar-width: thin; scrollbar-color: #ccc #f1f1f1; }
+
+        /* Compass Entry Cell Styling (JS handles truncation) */
+        td.compass-entry {
+            font-size: 0.875rem; /* text-sm */
+            max-width: 250px; /* Adjust as needed */
+            white-space: normal;
+            word-break: break-word;
+        }
+        td.compass-entry[data-fulltext]:hover::after {
+            content: attr(data-fulltext);
+            position: absolute;
+            left: 100%; /* Position to the right of the cell */
+            top: 0;
+            transform: translateX(5px); /* Small gap */
+            background-color: #333;
+            color: white;
+            padding: 5px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            z-index: 10;
+            width: auto; /* Adjust width based on content */
+            max-width: 300px; /* Max width for tooltip */
+            white-space: pre-wrap; /* Preserve line breaks in tooltip */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            pointer-events: none; /* So it doesn't interfere with cell click */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s, visibility 0.2s;
+        }
+         td.compass-entry[data-fulltext]:hover {
+             cursor: help;
+             position: relative; /* Needed for absolute positioning of pseudo-element */
+        }
+        td.compass-entry[data-fulltext]:hover::after {
+            opacity: 1;
+            visibility: visible;
+        }
+
+
+        /* Input focus */
+        input:focus, button:focus { outline: none; }
+        input:focus-visible { border-color: #0d9488; box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.3); }
+        button:focus-visible { outline: 2px solid #0d9488; outline-offset: 2px; }
+
+        /* Modal Styles */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 50; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .modal-container { background-color: white; border-radius: 0.75rem; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15); width: 90%; max-width: 700px; max-height: 85vh; display: flex; flex-direction: column; transform: scale(0.95); transition: transform 0.3s ease; }
+        .modal-overlay.active .modal-container { transform: scale(1); }
+        .modal-header { padding: 1rem 1.5rem; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; }
+        .modal-title { font-size: 1.125rem; font-weight: 600; color: #1f2937; }
+        .modal-close-btn { color: #9ca3af; background: none; border: none; font-size: 1.5rem; line-height: 1; cursor: pointer; padding: 0.25rem; transition: color 0.2s ease; }
+        .modal-close-btn:hover { color: #374151; }
+        .modal-body { padding: 1.5rem; overflow-y: auto; flex-grow: 1; }
+        .modal-body dt { font-weight: 600; color: #374151; margin-top: 1rem; margin-bottom: 0.25rem; }
+        .modal-body dt:first-of-type { margin-top: 0; }
+        .modal-body dd { margin-left: 0; margin-bottom: 1rem; color: #1f2937; white-space: pre-wrap; word-break: break-word; font-size: 0.9rem; line-height: 1.5; padding-left: 0.5rem; border-left: 2px solid #e5e7eb; }
+        .modal-body hr { border-top: 1px dashed #d1d5db; margin: 1.5rem 0; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col">
+
+    <header class="bg-white shadow-md sticky top-0 z-20">
+        <nav class="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <i class="fas fa-compass text-2xl text-teal-600 mr-3"></i>
+                    <span class="text-xl font-semibold text-gray-900">Community Compass Admin</span>
+                </div>
+                <div id="user-info" class="hidden items-center space-x-3">
+                    <span id="user-email" class="text-sm text-gray-600 hidden sm:inline"></span>
+                    <button id="logout-button" class="bg-red-500 hover:bg-red-600 text-white text-xs font-medium py-1.5 px-3 rounded-md shadow-sm transition duration-150 ease-in-out flex items-center">
+                       <i class="fas fa-sign-out-alt mr-1 sm:mr-2"></i> <span class="hidden sm:inline">Logout</span>
+                    </button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="flex-grow container mx-auto p-4 sm:p-6 lg:p-8 w-full max-w-full">
+
+        <div id="login-section" class="max-w-md mx-auto mt-10 bg-white p-8 rounded-lg shadow-lg">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800 text-center">Admin Login</h2>
+            <form id="manual-login-form" class="space-y-4">
+                <div>
+                    <label for="login-email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                    <input type="email" id="login-email" name="email" required autocomplete="email"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500 text-sm">
+                </div>
+                <div>
+                    <label for="login-password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <input type="password" id="login-password" name="password" required autocomplete="current-password"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500 text-sm">
+                </div>
+                <div>
+                    <button type="submit" id="login-button"
+                            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 disabled:opacity-50">
+                        <span id="login-button-text">Sign in</span>
+                        <i id="login-spinner" class="fas fa-spinner fa-spin ml-2 hidden"></i>
+                    </button>
+                </div>
+            </form>
+            <p id="login-error-message" class="mt-4 text-sm text-red-600 text-center hidden"></p>
+            <p id="login-message" class="mt-4 text-sm text-gray-500 text-center"></p>
+        </div>
+
+        <div id="data-section" class="hidden bg-white p-4 sm:p-6 rounded-lg shadow-lg w-full">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800">Submitted Entries</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                 <div>
+                    <label for="search-name" class="block text-sm font-medium text-gray-700 mb-1">Name:</label>
+                    <input type="text" id="search-name" placeholder="Filter by name..." class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500 text-sm">
+                 </div>
+                 <div>
+                    <label for="search-email" class="block text-sm font-medium text-gray-700 mb-1">Email:</label>
+                    <input type="text" id="search-email" placeholder="Filter by email..." class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500 text-sm">
+                 </div>
+                 <div>
+                    <label for="search-community" class="block text-sm font-medium text-gray-700 mb-1">Community:</label>
+                    <input type="text" id="search-community" placeholder="Filter by community..." class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500 text-sm">
+                 </div>
+                 <div>
+                    <label for="search-country" class="block text-sm font-medium text-gray-700 mb-1">Country:</label>
+                    <input type="text" id="search-country" placeholder="Filter by country..." class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500 text-sm">
+                 </div>
+            </div>
+
+             <div id="status-indicators" class="mb-4">
+                <div id="loading-indicator" class="hidden text-center py-6">
+                    <div class="loader"></div>
+                    <p class="text-gray-500 mt-2">Loading data from Google Sheets...</p>
+                </div>
+                <div id="error-message-div" class="hidden text-center py-6 bg-red-50 border border-red-200 text-red-700 rounded-md p-4">
+                    <p id="error-text-p">Failed to load data.</p>
+                    <button id="retry-button" class="mt-3 bg-red-500 hover:bg-red-600 text-white text-sm font-medium py-1.5 px-4 rounded-md shadow-sm transition duration-150 ease-in-out">
+                        Retry Loading
+                    </button>
+                </div>
+                 <p id="no-results-message" class="text-center text-gray-500 my-4 hidden">No entries match your search criteria.</p>
+             </div>
+
+             <div id="table-container" class="table-container hidden">
+                <table class="min-w-full bg-white">
+                    <thead>
+                        <tr>
+                            <th class="whitespace-nowrap">Timestamp</th>
+                            <th class="whitespace-nowrap">Name</th>
+                            <th class="whitespace-nowrap">Email</th>
+                            <th class="whitespace-nowrap">Community</th>
+                            <th class="whitespace-nowrap">Country</th>
+                            <th class="whitespace-nowrap">People</th>
+                            <th class="whitespace-nowrap">Observations</th>
+                            <th class="whitespace-nowrap">Principles</th>
+                            <th class="whitespace-nowrap">Ideas</th>
+                            <th class="whitespace-nowrap">Experiments</th>
+                        </tr>
+                    </thead>
+                    <tbody id="data-table-body" class="divide-y divide-gray-200">
+                        </tbody>
+                </table>
+             </div>
+             <p id="total-entries" class="text-sm text-gray-500 mt-4 text-right"></p>
+        </div>
+    </main>
+
+    <footer class="bg-gray-200 text-center text-xs text-gray-600 p-4 mt-auto">
+        Community Compass Admin Panel &copy; 2025 | Created by Essa Janko
+    </footer>
+
+    <div id="detail-modal-overlay" class="modal-overlay">
+        <div class="modal-container" role="dialog" aria-modal="true" aria-labelledby="modal-title-detail">
+            <div class="modal-header">
+                <h3 id="modal-title-detail" class="modal-title">Entry Details</h3>
+                <button id="modal-close-button" class="modal-close-btn" aria-label="Close modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <dl>
+                    <dt>Timestamp:</dt> <dd id="modal-timestamp">-</dd>
+                    <dt>Name:</dt> <dd id="modal-name">-</dd>
+                    <dt>Email:</dt> <dd id="modal-email">-</dd>
+                    <dt>Community:</dt> <dd id="modal-community">-</dd>
+                    <dt>Country:</dt> <dd id="modal-country">-</dd>
+                    <hr>
+                    <dt>People:</dt> <dd id="modal-people">-</dd>
+                    <dt>Observations:</dt> <dd id="modal-observations">-</dd>
+                    <dt>Principles:</dt> <dd id="modal-principles">-</dd>
+                    <dt>Ideas:</dt> <dd id="modal-ideas">-</dd>
+                    <dt>Experiments:</dt> <dd id="modal-experiments">-</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfigGlobal = {
+            apiKey: "AIzaSyBwKsOD0s6JYzXNyE1xwcaF155MYDGsc8E",
+            authDomain: "innovators--compass-login.firebaseapp.com",
+            projectId: "innovators--compass-login",
+            storageBucket: "innovators--compass-login.appspot.com",
+            messagingSenderId: "1060094757345",
+            appId: "1:1060094757345:web:30a91613703a56a09eeaa0"
+        };
+
+        try {
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfigGlobal);
+                console.log("Firebase Initialized (Compat SDK via admin.html for global access)");
+            } else {
+                firebase.app();
+                console.log("Firebase already initialized (Compat SDK via admin.html for global access)");
+            }
+        } catch (error) {
+            console.error("Firebase initialization error (admin.html):", error);
+            const loginMessageEl = document.getElementById('login-message');
+            if (loginMessageEl) {
+                loginMessageEl.textContent = "CRITICAL ERROR: Firebase could not initialize. App may not function.";
+                loginMessageEl.classList.add('text-red-700', 'font-bold');
+            }
+            const loginFormEl = document.getElementById('manual-login-form');
+            if (loginFormEl) {
+                loginFormEl.classList.add('hidden');
+            }
+        }
+    </script>
+
+    <script src="admin.js" type="module" defer></script>
+</body>
+</html>
