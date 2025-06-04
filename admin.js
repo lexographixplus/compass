@@ -225,7 +225,7 @@ function filterAndRenderEntries() {
         if (allSheetEntries.length > 0) {
             setText(noResultsMessage, "No entries match your current search criteria.");
         } else {
-            setText(noResultsMessage, "No entries found in the Google Sheet or an error occurred.");
+            setText(noResultsMessage, "No entries found in the database.");
         }
         showElement(noResultsMessage);
         hideElement(tableContainer);
